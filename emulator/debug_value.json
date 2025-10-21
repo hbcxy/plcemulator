@@ -1,0 +1,64 @@
+{
+    "debug_tick": 534,
+    "CONFIG0.RES0.INSTANCE0.BLINK_LED": false,
+    "CONFIG0.RES0.INSTANCE0.TON0.EN": true,
+    "CONFIG0.RES0.INSTANCE0.TON0.ENO": true,
+    "CONFIG0.RES0.INSTANCE0.TON0.IN": true,
+    "CONFIG0.RES0.INSTANCE0.TON0.PT": {
+        "__timedelta__": true,
+        "days": 0,
+        "seconds": 0,
+        "microseconds": 500000
+    },
+    "CONFIG0.RES0.INSTANCE0.TON0.Q": false,
+    "CONFIG0.RES0.INSTANCE0.TON0.ET": {
+        "__timedelta__": true,
+        "days": 0,
+        "seconds": 0,
+        "microseconds": 180000
+    },
+    "CONFIG0.RES0.INSTANCE0.TON0.STATE": 1,
+    "CONFIG0.RES0.INSTANCE0.TON0.PREV_IN": true,
+    "CONFIG0.RES0.INSTANCE0.TON0.CURRENT_TIME": {
+        "__timedelta__": true,
+        "days": 20237,
+        "seconds": 32920,
+        "microseconds": 595000
+    },
+    "CONFIG0.RES0.INSTANCE0.TON0.START_TIME": {
+        "__timedelta__": true,
+        "days": 20237,
+        "seconds": 32920,
+        "microseconds": 415000
+    },
+    "CONFIG0.RES0.INSTANCE0.TOF0.EN": true,
+    "CONFIG0.RES0.INSTANCE0.TOF0.ENO": true,
+    "CONFIG0.RES0.INSTANCE0.TOF0.IN": false,
+    "CONFIG0.RES0.INSTANCE0.TOF0.PT": {
+        "__timedelta__": true,
+        "days": 0,
+        "seconds": 0,
+        "microseconds": 500000
+    },
+    "CONFIG0.RES0.INSTANCE0.TOF0.Q": false,
+    "CONFIG0.RES0.INSTANCE0.TOF0.ET": {
+        "__timedelta__": true,
+        "days": 0,
+        "seconds": 0,
+        "microseconds": 500000
+    },
+    "CONFIG0.RES0.INSTANCE0.TOF0.STATE": 2,
+    "CONFIG0.RES0.INSTANCE0.TOF0.PREV_IN": false,
+    "CONFIG0.RES0.INSTANCE0.TOF0.CURRENT_TIME": {
+        "__timedelta__": true,
+        "days": 20237,
+        "seconds": 32920,
+        "microseconds": 595000
+    },
+    "CONFIG0.RES0.INSTANCE0.TOF0.START_TIME": {
+        "__timedelta__": true,
+        "days": 20237,
+        "seconds": 32919,
+        "microseconds": 895000
+    }
+}
