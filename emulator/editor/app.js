@@ -1,3 +1,6 @@
+// Node.js 环境版本
+const WebSocket = require('ws');
+
 class PLCWebSocketClient {
     constructor() {
         this.socket = null;
@@ -14,92 +17,64 @@ class PLCWebSocketClient {
         }
 
         this.isManualDisconnect = false;
-        this.socket = new WebSocket('ws://localhost:8765');
+        this.socket = new WebSocket('ws://localhost:9002');
 
-        this.socket.onopen = () => {
+        this.socket.on('open', () => {
             this.reconnectAttempts = 0;
-            console.log('成功连接到 WebSocket 服务器');
-            document.getElementById('connectBtn').disabled = true;
-            document.getElementById('disconnectBtn').disabled = false;
-            this.addMessage('系统', '连接已建立', 'info');
-        };
+            console.log('✅ 成功连接到 WebSocket 服务器');
+        });
 
-        this.socket.onmessage = (event) => {
+        this.socket.on('message', (message) => {
             try {
-                console.log('Raw message:', event.data);
-                const data = JSON.parse(event.data);
-                // console.log('收到数据:', data);
-                if (data) {
-                    this.addMessage('PLC', this.formatJson(data), 'data');
-                }
+                console.log('📨 原始消息:', message.toString());
+                const data = JSON.parse(message);
+                console.log('🔹 来自 PLC 的数据:\n', JSON.stringify(data, null, 2));
             } catch (e) {
-                console.error('消息解析错误:', e);
-                this.addMessage('系统', `无效消息: ${event.data}`, 'error');
+                console.error('❌ 消息解析错误:', e.message);
+                console.log('无效消息:', message.toString());
             }
-        };
+        });
 
-        this.socket.onclose = (event) => {
-            console.log('连接已关闭', event);
-            document.getElementById('connectBtn').disabled = false;
-            document.getElementById('disconnectBtn').disabled = true;
+        this.socket.on('close', (code, reason) => {
+            console.log(`⚠️ 连接已关闭 (code=${code}, reason=${reason.toString() || '无'})`);
 
             if (this.isManualDisconnect) {
-                this.addMessage('系统', '已手动断开连接', 'info');
-                return; // 手动断开不重连
+                console.log('ℹ️ 已手动断开连接');
+                return;
             }
 
-            if (event.wasClean) {
-                this.addMessage('系统', '服务器已主动关闭连接', 'info');
-                return; // 服务器主动关闭不重连
-            }
-
-            // 只有意外断开时才尝试重连
             if (this.reconnectAttempts < this.maxReconnectAttempts) {
                 this.reconnectAttempts++;
-                const delay = this.reconnectDelay;
-                console.log(`尝试重新连接 (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
-                this.addMessage('系统', `连接意外断开，${delay/1000}秒后尝试重新连接 (${this.reconnectAttempts}/${this.maxReconnectAttempts})`, 'warning');
-                setTimeout(() => this.connect(), delay);
+                console.log(`⏳ 尝试重新连接 (${this.reconnectAttempts}/${this.maxReconnectAttempts})，${this.reconnectDelay/1000}秒后重试...`);
+                setTimeout(() => this.connect(), this.reconnectDelay);
             } else {
-                this.addMessage('系统', '已达到最大重连次数，请手动重新连接', 'error');
+                console.error('🚫 已达到最大重连次数，请手动重新连接');
             }
-        };
+        });
 
-        this.socket.onerror = (error) => {
-            console.error('WebSocket错误:', error);
-            this.addMessage('系统', `连接错误: ${error.message || '未知错误'}`, 'error');
-        };
+        this.socket.on('error', (error) => {
+            console.error('❗ WebSocket 错误:', error.message);
+        });
     }
 
     disconnect() {
         if (this.socket) {
             this.isManualDisconnect = true;
+            console.log('🔌 正在断开连接...');
             this.socket.close();
         }
     }
-
-    formatJson(data) {
-        return `<pre>${JSON.stringify(data, null, 2)}</pre>`;
-    }
-
-    addMessage(source, text, type) {
-        const messagesDiv = document.getElementById('messages');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${type}`;
-        messageDiv.innerHTML = `<strong>${source}:</strong> ${text}`;
-        messagesDiv.appendChild(messageDiv);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
 }
 
-// 初始化客户端
+// 使用示例
 const plcClient = new PLCWebSocketClient();
 
-// 绑定按钮事件
-document.getElementById('connectBtn').addEventListener('click', () => {
-    plcClient.connect();
-});
+// 连接到服务器
+plcClient.connect();
 
-document.getElementById('disconnectBtn').addEventListener('click', () => {
+// 监听 Ctrl+C 事件，手动断开
+process.on('SIGINT', () => {
+    console.log('\n🛑 收到退出信号 (Ctrl+C)，正在断开...');
     plcClient.disconnect();
+    setTimeout(() => process.exit(0), 1000);
 });

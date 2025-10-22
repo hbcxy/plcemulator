@@ -152,6 +152,9 @@ class Laucher:
     
     def start(self):
         self.ProcessCommandLineArgs()
+        if not self.projectPath:
+            self.projectPath = "../../Blink"  # 默认项目路径
+            print(f"[INFO] Using default project path: {self.projectPath}")
         self.emulator = Emulator(None, self.projectPath, self.buildpath, log = self.logger)
     
     def run(self):

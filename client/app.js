@@ -14,7 +14,7 @@ class PLCWebSocketClient {
         }
 
         this.isManualDisconnect = false;
-        this.socket = new WebSocket('ws://localhost:8765');
+        this.socket = new WebSocket('ws://localhost:9002');
 
         this.socket.onopen = () => {
             this.reconnectAttempts = 0;
