@@ -1,65 +1,8 @@
-// const { spawn } = require('child_process');
-
-// // 要传递给 Python 进程的参数
-// const projectOpen = 'E:\\Projects\\Blink'
-// const args = [projectOpen];
-
-// const readline = require('readline');
-
-// // 创建一个 readline 接口来处理命令行输入
-// const rl = readline.createInterface({
-//   input: process.stdin,
-//   output: process.stdout,
-// });
-
-// // 启动 Python 进程
-// const pythonProcess = spawn('python', ['editor/Laucher.py', ...args]);
-
-// // 将 Node.js 的标准输入转发给 Python 子进程
-// rl.on('line', (input) => {
-//   pythonProcess.stdin.write(input + '\n');
-// });
-
-// // 监听 Python 进程的 stdout
-// pythonProcess.stdout.on('data', (data) => {
-// //   console.log(`Python 进程输出：${data}`);
-//     process.stdout.write(`${data}`);
-// });
-
-// // 监听 Python 进程的 stderr
-// pythonProcess.stderr.on('data', (data) => {
-// //   console.error(`Python 进程错误：${data}`);
-//     process.stderr.write(`${data}`);
-// });
-
-// // 向 Python 进程发送命令
-// function sendCommand(command) {
-//   pythonProcess.stdin.write(command + '\n');
-// }
-
-// // 示例：发送命令
-// sendCommand('run');
-// // setTimeout(() => {
-// //   sendCommand('stop');
-// //   setTimeout(() => {
-// //     pythonProcess.kill();
-// //   }, 0);
-// // }, 10000); // 10秒后发送停止命令
-
-
-// // sendCommand('build');
-
-
-const { spawn } = require('child_process');
 const { Dealer } = require('zeromq');
 const readline = require('readline');
 
 // Configuration constants
 const PORT = 9001;
-// 相对路径：从 test.js 所在目录（emulator/editor）向上两级到根目录，再进入 Blink
-const PROJECT_OPEN_PATH = '../../Blink';
-// 相对路径：Laucher.py 与 test.js 在同一目录（editor）下
-const PYTHON_SCRIPT_PATH = './Laucher.py';  // 或直接写 'Laucher.py'
 
 // Create ZeroMQ dealer socket
 const dealerSocket = new Dealer();
@@ -75,9 +18,6 @@ const rl = readline.createInterface({
 // Add Promise support to readline
 rl.questionAsync = (question) => new Promise(resolve => rl.question(question, resolve));
 
-// Start Python process
-const pythonProcess = spawn('python', [PYTHON_SCRIPT_PATH, PROJECT_OPEN_PATH]);
-
 // Cleanup function
 function cleanup() {
     try {
@@ -89,13 +29,6 @@ function cleanup() {
         rl.close();
     } catch (err) {
         console.error('Error closing readline:', err);
-    }
-    try {
-        if (!pythonProcess.killed) {
-            pythonProcess.kill();
-        }
-    } catch (err) {
-        console.error('Error killing Python process:', err);
     }
 }
 
@@ -118,21 +51,6 @@ function connectSocket() {
     }
 }
 
-// Handle Python process output
-pythonProcess.stdout.on('data', (data) => {
-    process.stdout.write(`${data}`);
-});
-
-pythonProcess.stderr.on('data', (data) => {
-    process.stderr.write(`${data}`);
-});
-
-pythonProcess.on('close', (code) => {
-    console.log(`Python process exited with code: ${code}`);
-    cleanup();
-    process.exit(code);
-});
-
 // Send command to Python
 async function sendCommand(type, payload = {}) {
     try {
@@ -144,7 +62,7 @@ async function sendCommand(type, payload = {}) {
     }
 }
 
-// Handle messages from Python
+// Handle messages from Python (async loop)
 (async function() {
     try {
         for await (const [msg] of dealerSocket) {

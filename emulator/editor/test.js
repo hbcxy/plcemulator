@@ -1,8 +1,18 @@
 const { Dealer } = require('zeromq');
 const readline = require('readline');
 
-// Configuration constants
-const PORT = 9001;
+// ========== 端口配置部分 ==========
+const DEFAULT_PORT = 9001;
+
+// 优先级：命令行参数 > 环境变量 > 默认值
+// 用法示例：
+//   node client.js 8000
+//   PORT=8000 node client.js
+const PORT = process.argv[2] ? parseInt(process.argv[2], 10)
+           : process.env.PORT ? parseInt(process.env.PORT, 10)
+           : DEFAULT_PORT;
+
+// =================================
 
 // Create ZeroMQ dealer socket
 const dealerSocket = new Dealer();

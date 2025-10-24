@@ -1,43 +1,8 @@
 // Node.js 环境版本
 const WebSocket = require('ws');
 
-// ========== 连接配置部分 ==========
-const DEFAULT_HOST = 'localhost';
-const DEFAULT_PORT = 9002;
-
-// 优先级顺序：
-// 1. 命令行参数（完整 URL 或仅端口号）
-// 2. 环境变量 HOST 和 PORT
-// 3. 默认值
-let serverUrl = null;
-
-// 如果命令行提供了参数
-if (process.argv[2]) {
-    const arg = process.argv[2];
-    if (/^ws:\/\//.test(arg)) {
-        // 例如：node client.js ws://192.168.1.10:8080
-        serverUrl = arg;
-    } else if (/^\d+$/.test(arg)) {
-        // 例如：node client.js 8080
-        serverUrl = `ws://${DEFAULT_HOST}:${arg}`;
-    } else {
-        console.warn(`⚠️ 无效的命令行参数 "${arg}"，将使用默认配置`);
-    }
-}
-
-// 如果命令行未提供或无效，则从环境变量读取
-if (!serverUrl) {
-    const host = process.env.HOST || DEFAULT_HOST;
-    const port = process.env.PORT || DEFAULT_PORT;
-    serverUrl = `ws://${host}:${port}`;
-}
-
-console.log(`🌐 WebSocket 目标地址: ${serverUrl}`);
-// ==================================
-
 class PLCWebSocketClient {
-    constructor(url) {
-        this.url = url;
+    constructor() {
         this.socket = null;
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 5;
@@ -47,16 +12,16 @@ class PLCWebSocketClient {
 
     connect() {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-            console.log('✅ 已经连接到服务器');
+            console.log('已经连接到服务器');
             return;
         }
 
         this.isManualDisconnect = false;
-        this.socket = new WebSocket(this.url);
+        this.socket = new WebSocket('ws://localhost:9002');
 
         this.socket.on('open', () => {
             this.reconnectAttempts = 0;
-            console.log(`🔗 成功连接到 ${this.url}`);
+            console.log('✅ 成功连接到 WebSocket 服务器');
         });
 
         this.socket.on('message', (message) => {
@@ -102,7 +67,7 @@ class PLCWebSocketClient {
 }
 
 // 使用示例
-const plcClient = new PLCWebSocketClient(serverUrl);
+const plcClient = new PLCWebSocketClient();
 
 // 连接到服务器
 plcClient.connect();
